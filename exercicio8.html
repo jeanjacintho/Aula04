@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercicio 8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+                background: 'oklch(0.145 0 0)',
+                foreground: 'oklch(0.985 0 0)',
+                card: 'oklch(0.205 0 0)',
+                primary: 'oklch(0.922 0 0)',
+                primaryforeground: 'oklch(0.205 0 0)',
+                secondary: 'oklch(0.269 0 0)',
+                secondaryforeground: 'oklch(0.985 0 0)',
+                mutedforeground: 'oklch(0.708 0 0)',
+                accent: 'oklch(0.269 0 0)',
+                border: 'oklch(1 0 0 / 10%)',
+                input: 'oklch(0.922 0 0)',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-background">
+    <div class="bg-card rounded-lg shadow-lg p-8 w-full max-w-2xl border border-border flex flex-col gap-6">
+        <h2 class="text-2xl font-bold text-center text-foreground">Quiz de Conhecimentos Gerais</h2>
+        <div id="inicio" class="text-center flex flex-col gap-6">
+            <p class="text-mutedforeground text-sm">Você irá responder 5 questões aleatórias</p>
+            <button onclick="iniciarQuiz()" class="w-full flex items-center justify-center bg-primary text-primaryforeground hover:bg-green-500 hover:text-foreground h-12 px-6 py-3 rounded-md font-medium text-lg">
+                Iniciar Quiz
+            </button>
+            <p class="text-md font-medium text-green-500">BOA SORTE 🥳</p>
+        </div>
+
+        <div id="quiz" class="hidden">
+            <div id="progresso" class="text-center mb-4">
+                <div class="flex justify-center gap-2">
+                    <div id="questao1" class="w-8 h-8 rounded border-2 border-green-500 flex items-center justify-center text-sm font-medium bg-green-500 text-primaryforeground">1</div>
+                    <div id="questao2" class="w-8 h-8 rounded border-2 border-border flex items-center justify-center text-sm font-medium text-mutedforeground">2</div>
+                    <div id="questao3" class="w-8 h-8 rounded border-2 border-border flex items-center justify-center text-sm font-medium text-mutedforeground">3</div>
+                    <div id="questao4" class="w-8 h-8 rounded border-2 border-border flex items-center justify-center text-sm font-medium text-mutedforeground">4</div>
+                    <div id="questao5" class="w-8 h-8 rounded border-2 border-border flex items-center justify-center text-sm font-medium text-mutedforeground">5</div>
+                </div>
+            </div>
+            <!-- Questão e alternativas são renderizadas dinamicamente aqui -->
+            <div id="questao" class="space-y-4">
+                
+            </div>
+            <!-- Botões de ação -->
+            <div class="flex gap-4 mt-6">
+                <button onclick="responderQuestao()" class="flex-1 bg-primary text-primaryforeground hover:bg-green-500 hover:text-foreground h-10 px-4 py-2 rounded-md font-medium">
+                    Responder
+                </button>
+                <button onclick="reiniciarQuiz()" class="flex-1 border border-border hover:bg-secondary text-secondaryforeground hover:bg-secondary/40 h-10 px-4 py-2 rounded-md font-medium">
+                    Reiniciar
+                </button>
+            </div>
+        </div>
+
+        <!-- Área de resultado, inicialmente oculta -->
+        <div id="resultado" class="hidden text-center">
+            
+        </div>
+    </div>
+
+    <script>
+        // Lista de questões do quiz
+        const questoes = [
+            {
+                pergunta: "Qual é a capital do Brasil?",
+                alternativas: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"],
+                correta: 2
+            },
+            {
+                pergunta: "Quantos planetas existem no sistema solar?",
+                alternativas: ["7", "8", "9", "10"],
+                correta: 1
+            },
+            {
+                pergunta: "Quem pintou a Mona Lisa?",
+                alternativas: ["Van Gogh", "Leonardo da Vinci", "Picasso", "Michelangelo"],
+                correta: 1
+            },
+            {
+                pergunta: "Qual é o maior oceano do mundo?",
+                alternativas: ["Atlântico", "Índico", "Pacífico", "Ártico"],
+                correta: 2
+            },
+            {
+                pergunta: "Em que ano o Brasil se tornou independente?",
+                alternativas: ["1808", "1822", "1889", "1891"],
+                correta: 1
+            },
+            {
+                pergunta: "Qual é o elemento químico mais abundante no universo?",
+                alternativas: ["Oxigênio", "Carbono", "Hidrogênio", "Hélio"],
+                correta: 2
+            },
+            {
+                pergunta: "Quem escreveu 'Dom Casmurro'?",
+                alternativas: ["Machado de Assis", "José de Alencar", "Eça de Queirós", "Aluísio Azevedo"],
+                correta: 0
+            },
+            {
+                pergunta: "Qual é a velocidade da luz?",
+                alternativas: ["299.792 km/s", "199.792 km/s", "399.792 km/s", "499.792 km/s"],
+                correta: 0
+            },
+            {
+                pergunta: "Quantos lados tem um hexágono?",
+                alternativas: ["5", "6", "7", "8"],
+                correta: 1
+            },
+            {
+                pergunta: "Qual é o maior animal terrestre?",
+                alternativas: ["Elefante africano", "Girafa", "Rinoceronte", "Hipopótamo"],
+                correta: 0
+            }
+        ];
+
+        let questoesSelecionadas = [];
+        let questaoAtual = 0;
+        let acertos = 0;
+        let respostas = [];
+
+        // Inicia o quiz, sorteando 5 questões aleatórias
+        function iniciarQuiz() {
+            questoesSelecionadas = [];
+            const indices = Array.from({length: 10}, (_, i) => i);
+            // Sorteio sem repetição
+            for (let i = 0; i < 5; i++) {
+                const randomIndex = Math.floor(Math.random() * indices.length);
+                questoesSelecionadas.push(questoes[indices[randomIndex]]);
+                indices.splice(randomIndex, 1);
+            }
+            questaoAtual = 0;
+            acertos = 0;
+            respostas = [];
+            document.getElementById('inicio').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            document.getElementById('resultado').classList.add('hidden');
+            mostrarQuestao();
+        }
+
+        function mostrarQuestao() {
+            const questao = questoesSelecionadas[questaoAtual];
+            // Atualiza os indicadores visuais das questões
+            for (let i = 1; i <= 5; i++) {
+                const questaoElement = document.getElementById(`questao${i}`);
+                if (i === questaoAtual + 1) {
+                    // Questão atual: destaque
+                    questaoElement.className = 'w-8 h-8 rounded border-2 border-green-500 flex items-center justify-center text-sm font-medium bg-green-500 text-secondaryforeground';
+                } else if (i < questaoAtual + 1) {
+                    // Questões já respondidas: cinza
+                    questaoElement.className = 'w-8 h-8 rounded border-2 border-gray-400 flex items-center justify-center text-sm font-medium bg-gray-400 text-white';
+                } else {
+                    // Questões futuras: neutro
+                    questaoElement.className = 'w-8 h-8 rounded border-2 border-border flex items-center justify-center text-sm font-medium text-mutedforeground';
+                }
+            }
+            // Monta as alternativas com letras (A, B, C, D)
+            let alternativasHTML = '';
+            questao.alternativas.forEach((alternativa, index) => {
+                const letra = String.fromCharCode(65 + index); // A, B, C, D
+                alternativasHTML += `
+                    <label class="flex items-center p-3 bg-accent rounded-lg cursor-pointer hover:bg-accent/80 border-2 border-transparent transition-colors duration-200" id="alternativa-${index}" onclick="selecionarAlternativa(${index})">
+                        <input type="radio" name="resposta" value="${index}" class="hidden" id="radio-${index}">
+                        <div class="w-8 h-8 rounded-full border-2 border-border flex items-center justify-center mr-3 text-sm font-medium text-mutedforeground" id="circulo-${index}">
+                            ${letra}
+                        </div>
+                        <span class="text-foreground">${alternativa}</span>
+                    </label>
+                `;
+            });
+            document.getElementById('questao').innerHTML = `
+                <h3 class="text-lg font-semibold text-foreground mb-4">${questao.pergunta}</h3>
+                <div class="space-y-2">
+                    ${alternativasHTML}
+                </div>
+            `;
+        }
+
+        // Seleciona uma alternativa, marca o radio escondido e destaca visualmente
+        function selecionarAlternativa(indexSelecionado) {
+            const todosRadios = document.querySelectorAll('input[name="resposta"]');
+            todosRadios.forEach(radio => radio.checked = false);
+            // Marca o radio button selecionado
+            const radioSelecionado = document.getElementById(`radio-${indexSelecionado}`);
+            if (radioSelecionado) {
+                radioSelecionado.checked = true;
+            }
+            const todasAlternativas = document.querySelectorAll('[id^="alternativa-"]');
+            todasAlternativas.forEach((alternativa, index) => {
+                alternativa.classList.remove('border-green-500');
+                alternativa.classList.add('border-transparent');
+                const circulo = document.getElementById(`circulo-${index}`);
+                if (circulo) {
+                    circulo.className = 'w-8 h-8 rounded-full border-2 border-border flex items-center justify-center mr-3 text-sm font-medium text-mutedforeground';
+                }
+            });
+            // Adiciona borda verde à alternativa selecionada
+            const alternativaSelecionada = document.getElementById(`alternativa-${indexSelecionado}`);
+            if (alternativaSelecionada) {
+                alternativaSelecionada.classList.remove('border-transparent');
+                alternativaSelecionada.classList.add('border-green-500');
+            }
+            // Destaca o círculo da alternativa selecionada
+            const circuloSelecionado = document.getElementById(`circulo-${indexSelecionado}`);
+            if (circuloSelecionado) {
+                circuloSelecionado.className = 'w-8 h-8 rounded-full border-2 border-green-500 bg-green-500 flex items-center justify-center mr-3 text-sm font-medium text-white';
+            }
+        }
+
+        // Valida a resposta, contabiliza acertos e avança ou mostra resultado
+        function responderQuestao() {
+            const respostaSelecionada = document.querySelector('input[name="resposta"]:checked');
+            if (!respostaSelecionada) {
+                alert('Por favor, selecione uma alternativa!');
+                return;
+            }
+            const resposta = parseInt(respostaSelecionada.value);
+            respostas.push(resposta);
+            if (resposta === questoesSelecionadas[questaoAtual].correta) {
+                acertos++;
+            }
+            questaoAtual++;
+            if (questaoAtual < 5) {
+                mostrarQuestao();
+            } else {
+                mostrarResultado();
+            }
+        }
+
+        // Exibe o resultado final do quiz com feedback visual
+        function mostrarResultado() {
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('resultado').classList.remove('hidden');
+            const porcentagem = (acertos / 5) * 100;
+            let mensagem, cor, bgCor;
+            // Define mensagem e cor de acordo com o desempenho
+            if (porcentagem >= 80) {
+                mensagem = "Excelente! 🎉";
+                cor = "text-green-500";
+                bgCor = "bg-accent";
+            } else if (porcentagem >= 60) {
+                mensagem = "Bom trabalho! 👍";
+                cor = "text-blue-500";
+                bgCor = "bg-accent";
+            } else if (porcentagem >= 40) {
+                mensagem = "Razoável! 🤔";
+                cor = "text-yellow-500";
+                bgCor = "bg-accent";
+            } else {
+                mensagem = "Precisa estudar mais! 📚";
+                cor = "text-red-500";
+                bgCor = "bg-accent";
+            }
+            // Detalhamento das respostas do usuário
+            let detalhesHTML = '';
+            questoesSelecionadas.forEach((questao, index) => {
+                const respostaUsuario = respostas[index];
+                const respostaCorreta = questao.correta;
+                const acertou = respostaUsuario === respostaCorreta;
+                detalhesHTML += `
+                    <div class="p-3 bg-card rounded ${acertou ? 'border-green-500' : 'border-red-500'} border">
+                        <p class="text-foreground font-medium">${index + 1}. ${questao.pergunta}</p>
+                        <p class="text-sm ${acertou ? 'text-green-500' : 'text-red-500'}">
+                            Sua resposta: ${questao.alternativas[respostaUsuario]}
+                            ${acertou ? '✅' : `❌ (Correta: ${questao.alternativas[respostaCorreta]})`}
+                        </p>
+                    </div>
+                `;
+            });
+            document.getElementById('resultado').innerHTML = `
+                <div class="${bgCor} p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold ${cor} mb-4">${mensagem}</h3>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between items-center p-3 bg-card rounded">
+                            <span class="text-foreground">Acertos:</span>
+                            <span class="text-primary font-bold">${acertos} de 5</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-card rounded">
+                            <span class="text-foreground">Porcentagem:</span>
+                            <span class="text-primary font-bold">${porcentagem}%</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="text-lg font-semibold text-foreground mb-3">Detalhes das respostas:</h4>
+                        ${detalhesHTML}
+                    </div>
+                    <button onclick="iniciarQuiz()" class="w-full mt-6 bg-primary text-primaryforeground hover:bg-green-500 hover:text-foreground h-10 px-4 py-2 rounded-md font-medium">
+                        Fazer Novo Quiz
+                    </button>
+                </div>
+            `;
+        }
+        function reiniciarQuiz() {
+            document.getElementById('inicio').classList.remove('hidden');
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('resultado').classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 
