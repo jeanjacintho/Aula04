@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercicio 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+                background: 'oklch(0.145 0 0)',
+                foreground: 'oklch(0.985 0 0)',
+                card: 'oklch(0.205 0 0)',
+                primary: 'oklch(0.922 0 0)',
+                primaryforeground: 'oklch(0.205 0 0)',
+                secondary: 'oklch(0.269 0 0)',
+                secondaryforeground: 'oklch(0.985 0 0)',
+                mutedforeground: 'oklch(0.708 0 0)',
+                accent: 'oklch(0.269 0 0)',
+                border: 'oklch(1 0 0 / 10%)',
+                input: 'oklch(0.922 0 0)',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-background">
+    <div class="bg-card rounded-lg shadow-lg p-8 w-full max-w-md border border-border flex flex-col gap-6">
+        <h2 class="text-2xl font-bold text-center text-foreground">Jogo de Adivinhação</h2>
+        <p class="text-center text-mutedforeground">Tente adivinhar o número entre 1 e 100!</p>
+        
+        <div class="space-y-4">
+            <div class="flex flex-col gap-2">
+                <label for="palpite" class="block text-sm font-medium text-foreground">Seu palpite:</label>
+                <input type="number" id="palpite" min="1" max="100" class="flex h-9 w-full rounded-md border border-input px-3 py-1 text-base" placeholder="Digite um número entre 1 e 100"/>
+            </div>
+            
+            <button onclick="verificarPalpite()" class="w-full bg-primary text-primaryforeground hover:bg-green-500 hover:text-foreground h-9 px-4 py-2 rounded-md font-medium">
+                Verificar
+            </button>
+            
+            <button onclick="novoJogo()" class="w-full flex justify-center items-center border border-border hover:bg-secondary text-secondaryforeground hover:bg-secondary/40 h-9 px-4 py-2 rounded-md font-medium">
+                Novo Jogo
+            </button>
+        </div>
+
+        <div id="resultado" class="text-center text-lg font-semibold">
+            
+        </div>
+        
+        <div id="tentativas" class="text-center text-sm text-mutedforeground">
+            Tentativas: 0
+        </div>
+    </div>
+
+    <script>
+        let numeroSecreto = Math.floor(Math.random() * 100) + 1;
+        let tentativas = 0;
+        
+        function verificarPalpite() {
+            const palpite = parseInt(document.getElementById('palpite').value);
+            const resultadoDiv = document.getElementById('resultado');
+            const tentativasDiv = document.getElementById('tentativas');
+            
+            if (!palpite || palpite < 1 || palpite > 100) {
+                resultadoDiv.innerHTML = '<span class="text-red-500">Por favor, digite um número válido entre 1 e 100!</span>';
+                return;
+            }
+            
+            tentativas++;
+            tentativasDiv.textContent = `Tentativas: ${tentativas}`;
+            
+            if (palpite === numeroSecreto) {
+                resultadoDiv.innerHTML = `
+                    <div class="bg-green-500/20 p-4 rounded-lg border border-green-500">
+                        <p class="text-green-500 font-bold">🎉 Parabéns! Você acertou!</p>
+                        <p class="text-green-400">O número era ${numeroSecreto}</p>
+                        <p class="text-green-400">Você acertou em ${tentativas} tentativa${tentativas > 1 ? 's' : ''}!</p>
+                    </div>
+                `;
+                document.getElementById('palpite').disabled = true;
+            } else {
+                const diferenca = Math.abs(palpite - numeroSecreto);
+                let dica, cor;
+                
+                if (diferenca <= 5) {
+                    dica = "Quase!";
+                    cor = "text-yellow-500";
+                } else if (diferenca <= 10) {
+                    dica = "Perto!";
+                    cor = "text-orange-500";
+                } else if (diferenca <= 20) {
+                    dica = "Longe!";
+                    cor = "text-red-400";
+                } else {
+                    dica = "Muito longe!";
+                    cor = "text-red-600";
+                }
+                
+                const direcao = palpite < numeroSecreto ? "maior" : "menor";
+                
+                resultadoDiv.innerHTML = `
+                    <div class="bg-accent p-4 rounded-lg">
+                        <p class="${cor} font-bold">${dica}</p>
+                        <p class="text-foreground">O número é ${direcao} que ${palpite}</p>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('palpite').value = '';
+            document.getElementById('palpite').focus();
+        }
+        
+        function novoJogo() {
+            numeroSecreto = Math.floor(Math.random() * 100) + 1;
+            tentativas = 0;
+            document.getElementById('resultado').innerHTML = '';
+            document.getElementById('tentativas').textContent = 'Tentativas: 0';
+            document.getElementById('palpite').disabled = false;
+            document.getElementById('palpite').value = '';
+            document.getElementById('palpite').focus();
+        }
+        
+        document.getElementById('palpite').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verificarPalpite();
+            }
+        });
+    </script>
+</body>
+</html>
