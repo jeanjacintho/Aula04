@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercicio 6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+                background: 'oklch(0.145 0 0)',
+                foreground: 'oklch(0.985 0 0)',
+                card: 'oklch(0.205 0 0)',
+                primary: 'oklch(0.922 0 0)',
+                primaryforeground: 'oklch(0.205 0 0)',
+                secondary: 'oklch(0.269 0 0)',
+                secondaryforeground: 'oklch(0.985 0 0)',
+                mutedforeground: 'oklch(0.708 0 0)',
+                accent: 'oklch(0.269 0 0)',
+                border: 'oklch(1 0 0 / 10%)',
+                input: 'oklch(0.922 0 0)',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-background">
+    <div class="bg-card rounded-lg shadow-lg p-8 w-full max-w-md border border-border flex flex-col gap-6">
+        <h2 class="text-2xl font-bold text-center text-foreground">Calculadora de IMC</h2>
+        <p class="text-center text-mutedforeground">Calcule seu Índice de Massa Corporal</p>
+        
+        <div class="space-y-4">
+            <div class="flex flex-col gap-2">
+                <label for="peso" class="block text-sm font-medium text-foreground">Peso (kg):</label>
+                <input type="number" id="peso" step="0.1" min="20" max="300" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm text-foreground focus:border-green-500 focus:outline-none" placeholder="Ex: 70.5"/>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+                <label for="altura" class="block text-sm font-medium text-foreground">Altura (m):</label>
+                <input type="number" id="altura" step="0.01" min="1.0" max="2.5" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm text-foreground focus:border-green-500 focus:outline-none" placeholder="Ex: 1.75"/>
+            </div>
+            
+            <button onclick="calcularIMC()" class="w-full bg-primary text-primaryforeground hover:bg-green-500 hover:text-foreground h-9 px-4 py-2 rounded-md font-medium">
+                Calcular IMC
+            </button>
+            
+            <button onclick="limparResultado()" class="w-full flex justify-center items-center border border-border hover:bg-secondary text-secondaryforeground hover:bg-secondary/40 h-9 px-4 py-2 rounded-md font-medium">
+                Limpar
+            </button>
+        </div>
+
+        <div id="resultado" class="text-center">
+            
+        </div>
+    </div>
+
+    <script>
+        function calcularIMC() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+            const resultadoDiv = document.getElementById('resultado');
+            
+            // Validação: verifica se os valores estão dentro dos ranges realistas
+            // Peso: 20-300kg (evita valores absurdos)
+            // Altura: 1.0-2.5m (cobre a maioria dos casos humanos)
+            if (!peso || !altura || peso < 20 || peso > 300 || altura < 1.0 || altura > 2.5) {
+                resultadoDiv.innerHTML = '<span class="text-red-500">Por favor, digite valores válidos! Peso: 20-300kg, Altura: 1.0-2.5m</span>';
+                return;
+            }
+            
+            // Calcula o IMC usando a fórmula: peso / altura²
+            const imc = peso / (altura * altura);
+            
+            let classificacao, cor, bgCor;
+            
+            // Sistema de classificação do IMC baseado na OMS
+            switch (true) {
+                case imc < 18.5:
+                    classificacao = "Abaixo do peso";
+                    cor = "text-blue-500";
+                    bgCor = "bg-blue-500/20";
+                    break;
+                case imc >= 18.5 && imc <= 24.9:
+                    classificacao = "Peso normal";
+                    cor = "text-green-500";
+                    bgCor = "bg-green-500/20";
+                    break;
+                case imc >= 25.0 && imc <= 29.9:
+                    classificacao = "Sobrepeso";
+                    cor = "text-yellow-500";
+                    bgCor = "bg-yellow-500/20";
+                    break;
+                case imc >= 30.0 && imc <= 34.9:
+                    classificacao = "Obesidade grau 1";
+                    cor = "text-orange-500";
+                    bgCor = "bg-orange-500/20";
+                    break;
+                case imc >= 35.0 && imc <= 39.9:
+                    classificacao = "Obesidade grau 2";
+                    cor = "text-red-500";
+                    bgCor = "bg-red-500/20";
+                    break;
+                default: // imc >= 40.0
+                    classificacao = "Obesidade grau 3";
+                    cor = "text-red-600";
+                    bgCor = "bg-red-600/20";
+                    break;
+            }
+            
+            // Exibe o resultado
+            resultadoDiv.innerHTML = `
+                <div class="${bgCor} p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-foreground mb-4">Resultado do IMC</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-card rounded">
+                            <span class="text-foreground">Peso:</span>
+                            <span class="text-primary font-bold">${peso} kg</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-card rounded">
+                            <span class="text-foreground">Altura:</span>
+                            <span class="text-primary font-bold">${altura} m</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-card rounded">
+                            <span class="text-foreground">IMC:</span>
+                            <span class="text-primary font-bold">${imc.toFixed(1)}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-card rounded">
+                            <span class="text-foreground">Classificação:</span>
+                            <span class="${cor} font-bold">${classificacao}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function limparResultado() {
+            document.getElementById('resultado').innerHTML = ''; // Limpa o resultado
+            document.getElementById('peso').value = ''; // Limpa o campo peso
+            document.getElementById('altura').value = ''; // Limpa o campo altura
+            document.getElementById('peso').focus(); // Foca no campo peso para nova entrada
+        }
+        
+        // Event listener global para permitir pressionar Enter e calcular o IMC
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calcularIMC();
+            }
+        });
+    </script>
+</body>
+</html> 
