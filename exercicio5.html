@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercicio 5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+                background: 'oklch(0.145 0 0)',
+                foreground: 'oklch(0.985 0 0)',
+                card: 'oklch(0.205 0 0)',
+                primary: 'oklch(0.922 0 0)',
+                primaryforeground: 'oklch(0.205 0 0)',
+                secondary: 'oklch(0.269 0 0)',
+                secondaryforeground: 'oklch(0.985 0 0)',
+                mutedforeground: 'oklch(0.708 0 0)',
+                accent: 'oklch(0.269 0 0)',
+                border: 'oklch(1 0 0 / 10%)',
+                input: 'oklch(0.922 0 0)',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-background">
+    <div class="bg-card rounded-lg shadow-lg p-8 w-full max-w-md border border-border flex flex-col gap-6">
+        <h2 class="text-2xl font-bold text-center text-foreground">Calculadora de Fatorial</h2>
+        <p class="text-center text-mutedforeground">Digite um número para calcular seu fatorial!</p>
+        
+        <div class="space-y-4">
+            <div class="flex flex-col gap-2">
+                <label for="numero" class="block text-sm font-medium text-foreground">Número:</label>
+                <input type="number" id="numero" min="0" max="20" class="flex h-9 w-full rounded-md border border-input px-3 py-1 text-base focus:border-green-500 focus:outline-none" placeholder="Digite um número (0-20)"/>
+            </div>
+            
+            <button onclick="calcularFatorial()" class="w-full flex justify-center items-center bg-primary text-primaryforeground hover:bg-green-500 hover:text-foreground h-9 px-4 py-2 rounded-md font-medium">
+                Calcular Fatorial
+            </button>
+            
+            <button onclick="limparResultado()" class="w-full flex justify-center items-center border border-border hover:bg-secondary text-secondaryforeground hover:bg-secondary/40 h-9 px-4 py-2 rounded-md font-medium">
+                Limpar
+            </button>
+        </div>
+
+        <div id="resultado" class="text-center">
+            
+        </div>
+    </div>
+
+    <script>
+        function calcularFatorial() {
+            const numero = parseInt(document.getElementById('numero').value);
+            const numeroOriginal = document.getElementById('numero').value;
+            const resultadoDiv = document.getElementById('resultado');
+            
+            // Validação 1: Verifica se o número informado é inteiro (sem decimais)
+            if (numeroOriginal.includes('.') || numeroOriginal.includes(',')) {
+                resultadoDiv.innerHTML = '<span class="text-red-500">Por favor, informe apenas números inteiros!</span>';
+                return;
+            }
+            
+            // Validação 2: Verifica se o número está no range permitido (0-20)
+            if (numero < 0 || numero > 20) {
+                resultadoDiv.innerHTML = '<span class="text-red-500">Por favor, digite um número entre 0 e 20!</span>';
+                return; // Sai da função se estiver fora do range
+            }
+            
+            // Caso especial: Fatorial de 0 é sempre 1 (por definição matemática)
+            if (numero === 0) {
+                resultadoDiv.innerHTML = `
+                    <div class="bg-accent p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-foreground mb-4">Fatorial de 0</h3>
+                        <p class="text-foreground mb-2">0! = 1</p>
+                        <p class="text-sm text-mutedforeground">Por definição, o fatorial de 0 é igual a 1.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let fatorial = 1; // Variável para armazenar o resultado final
+            let passos = []; // Array para armazenar cada passo do cálculo
+            let resultadoParcial = 1; // Variável para acompanhar o resultado durante o loop
+            
+            // Loop que calcula o fatorial de forma decrescente (n até 1)
+            for (let i = numero; i >= 1; i--) {
+                resultadoParcial *= i;
+                
+                // Formata o primeiro passo de forma diferente (sem multiplicação)
+                if (i === numero) {
+                    passos.push(`${i} = ${resultadoParcial}`);
+                } else {
+                    // Mostra o cálculo: resultado anterior × número atual = novo resultado
+                    passos.push(`${resultadoParcial / i} × ${i} = ${resultadoParcial}`);
+                }
+            }
+            
+            // Constrói o HTML para exibir os passos do cálculo
+            let passosHTML = '';
+            passos.forEach((passo, index) => {
+                passosHTML += `
+                    <div class="flex justify-between items-center p-2 bg-card rounded">
+                        <span class="text-foreground">${passo}</span>
+                    </div>
+                `;
+            });
+            
+            // Exibe o resultado final com todos os passos do cálculo
+            resultadoDiv.innerHTML = `
+                <div class="bg-accent p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-foreground mb-4">Fatorial de ${numero}</h3>
+                    <div class="space-y-2 mb-4">
+                        ${passosHTML}
+                    </div>
+                    <div class="border-t border-border pt-4">
+                        <p class="text-lg font-bold text-primary">${numero}! = ${fatorial}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function limparResultado() {
+            document.getElementById('resultado').innerHTML = ''; // Limpa o resultado
+            document.getElementById('numero').value = ''; // Limpa o input
+            document.getElementById('numero').focus(); // Foca no input para nova entrada
+        }
+        
+        // Event listener para permitir pressionar Enter e calcular o fatorial
+        document.getElementById('numero').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calcularFatorial();
+            }
+        });
+    </script>
+</body>
+</html> 
