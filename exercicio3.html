@@ -65,6 +65,7 @@
             const resultadoDiv = document.getElementById('resultado');
             const tentativasDiv = document.getElementById('tentativas');
             
+            // Validação: verifica se o palpite está dentro do range válido (1-100)
             if (!palpite || palpite < 1 || palpite > 100) {
                 resultadoDiv.innerHTML = '<span class="text-red-500">Por favor, digite um número válido entre 1 e 100!</span>';
                 return;
@@ -73,7 +74,9 @@
             tentativas++;
             tentativasDiv.textContent = `Tentativas: ${tentativas}`;
             
+            // Verifica se o jogador acertou o número
             if (palpite === numeroSecreto) {
+                // Caso de vitória: exibe mensagem de parabéns com detalhes
                 resultadoDiv.innerHTML = `
                     <div class="bg-green-500/20 p-4 rounded-lg border border-green-500">
                         <p class="text-green-500 font-bold">🎉 Parabéns! Você acertou!</p>
@@ -81,11 +84,17 @@
                         <p class="text-green-400">Você acertou em ${tentativas} tentativa${tentativas > 1 ? 's' : ''}!</p>
                     </div>
                 `;
-                document.getElementById('palpite').disabled = true;
+                document.getElementById('palpite').disabled = true; // Desabilita input após acertar
             } else {
+                // Caso de erro: calcula a diferença e fornece dicas
                 const diferenca = Math.abs(palpite - numeroSecreto);
                 let dica, cor;
                 
+                // Sistema de dicas baseado na proximidade do palpite:
+                // Diferença <= 5: "Quase!" (amarelo)
+                // Diferença <= 10: "Perto!" (laranja)
+                // Diferença <= 20: "Longe!" (vermelho claro)
+                // Diferença > 20: "Muito longe!" (vermelho escuro)
                 if (diferenca <= 5) {
                     dica = "Quase!";
                     cor = "text-yellow-500";
@@ -100,8 +109,10 @@
                     cor = "text-red-600";
                 }
                 
+                // Determina se o número secreto é maior ou menor que o palpite
                 const direcao = palpite < numeroSecreto ? "maior" : "menor";
                 
+                // Exibe a dica com a direção correta
                 resultadoDiv.innerHTML = `
                     <div class="bg-accent p-4 rounded-lg">
                         <p class="${cor} font-bold">${dica}</p>
@@ -115,15 +126,16 @@
         }
         
         function novoJogo() {
-            numeroSecreto = Math.floor(Math.random() * 100) + 1;
-            tentativas = 0;
-            document.getElementById('resultado').innerHTML = '';
-            document.getElementById('tentativas').textContent = 'Tentativas: 0';
-            document.getElementById('palpite').disabled = false;
-            document.getElementById('palpite').value = '';
-            document.getElementById('palpite').focus();
+            numeroSecreto = Math.floor(Math.random() * 100) + 1; // Gera novo número aleatório
+            tentativas = 0; // Reseta contador de tentativas
+            document.getElementById('resultado').innerHTML = ''; // Limpa resultado anterior
+            document.getElementById('tentativas').textContent = 'Tentativas: 0'; // Reseta exibição
+            document.getElementById('palpite').disabled = false; // Reabilita input
+            document.getElementById('palpite').value = ''; // Limpa campo
+            document.getElementById('palpite').focus(); // Foca no input
         }
         
+        // Event listener para permitir pressionar Enter e verificar palpite
         document.getElementById('palpite').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 verificarPalpite();

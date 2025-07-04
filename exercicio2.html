@@ -62,6 +62,7 @@
             const moeda = document.getElementById('moeda').value;
             const resultadoDiv = document.getElementById('resultado');
             
+            // Validação: verifica se ambos os campos foram preenchidos
             if (!valor || !moeda) {
                 resultadoDiv.innerHTML = '<span class="text-red-500">Por favor, preencha todos os campos!</span>';
                 return;
@@ -74,7 +75,10 @@
                 bitcoin: 0.0000042 // 1 BRL = 0.0000042 BTC
             };
             
+            // Calcula o valor convertido multiplicando pelo valor pela taxa
             const resultado = valor * taxas[moeda];
+            
+            // Objeto com os códigos das moedas para exibição
             const moedas = {
                 dolar: 'USD',
                 euro: 'EUR',
@@ -82,6 +86,7 @@
                 bitcoin: 'BTC'
             };
             
+            // Objeto com os símbolos das moedas para formatação visual
             const simbolos = {
                 dolar: '$',
                 euro: '€',
@@ -91,11 +96,14 @@
             
             let resultadoFormatado;
             if (moeda === 'bitcoin') {
+                // Bitcoin usa 8 casas decimais por ser uma criptomoeda
                 resultadoFormatado = `${simbolos[moeda]} ${resultado.toFixed(8)}`;
             } else {
+                // Moedas tradicionais usam 2 casas decimais
                 resultadoFormatado = `${simbolos[moeda]} ${resultado.toFixed(2)}`;
             }
             
+            // Exibe o resultado formatado com a conversão e taxa utilizada
             resultadoDiv.innerHTML = `
                 <div class="bg-accent p-4 rounded-lg">
                     <p class="text-foreground mb-2">R$ ${valor.toFixed(2)} = ${resultadoFormatado}</p>

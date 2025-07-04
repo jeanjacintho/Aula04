@@ -56,6 +56,7 @@
 
     <script>
         function calcularMedia() {
+            // Usa || 0 para tratar campos vazios como 0 (evita NaN)
             const nota1 = parseFloat(document.getElementById('nota1').value) || 0;
             const nota2 = parseFloat(document.getElementById('nota2').value) || 0;
             const nota3 = parseFloat(document.getElementById('nota3').value) || 0;
@@ -65,17 +66,22 @@
             
             let resultado, cor;
             
+            // Sistema de classificação baseado na média:
+            // >= 7: Aprovado (verde)
+            // 5-6.9: Em recuperação (amarelo)
+            // < 5: Reprovado (vermelho)
             if (media >= 7) {
                 resultado = `Média: ${media.toFixed(1)} - APROVADO`;
-                cor = 'text-green-500';
+                cor = 'text-green-500'; // Verde para aprovado
             } else if (media >= 5 && media < 7) {
                 resultado = `Média: ${media.toFixed(1)} - EM RECUPERAÇÃO`;
-                cor = 'text-yellow-500';
+                cor = 'text-yellow-500'; // Amarelo para recuperação
             } else {
                 resultado = `Média: ${media.toFixed(1)} - REPROVADO`;
-                cor = 'text-red-500';
+                cor = 'text-red-500'; // Vermelho para reprovado
             }
             
+            // Exibe o resultado na tela com a cor correspondente
             resultadoDiv.innerHTML = resultado;
             resultadoDiv.className = `text-center text-lg font-semibold ${cor}`;
         }
