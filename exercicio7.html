@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercicio 7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+                background: 'oklch(0.145 0 0)',
+                foreground: 'oklch(0.985 0 0)',
+                card: 'oklch(0.205 0 0)',
+                primary: 'oklch(0.922 0 0)',
+                primaryforeground: 'oklch(0.205 0 0)',
+                secondary: 'oklch(0.269 0 0)',
+                secondaryforeground: 'oklch(0.985 0 0)',
+                mutedforeground: 'oklch(0.708 0 0)',
+                accent: 'oklch(0.269 0 0)',
+                border: 'oklch(1 0 0 / 10%)',
+                input: 'oklch(0.922 0 0)',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-background">
+    <div class="bg-card rounded-lg shadow-lg p-8 w-full max-w-md border border-border flex flex-col gap-6">
+        <h2 class="text-2xl font-bold text-center text-foreground">Verificador de Ano Bissexto</h2>
+        <p class="text-center text-mutedforeground">Digite um ano para verificar se é bissexto!</p>
+        
+        <div class="space-y-4">
+            <div class="flex flex-col gap-2">
+                <label for="ano" class="block text-sm font-medium text-foreground">Ano:</label>
+                <input type="number" id="ano" min="1" max="9999" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm text-foreground focus:border-green-500 focus:outline-none" placeholder="Ex: 2024"/>
+            </div>
+            
+            <button onclick="verificarAnoBissexto()" class="flex items-center justify-center w-full bg-primary text-primaryforeground hover:bg-green-500 hover:text-foreground h-9 px-4 py-2 rounded-md font-medium">
+                Verificar
+            </button>
+            
+            <button onclick="limparResultado()" class="w-full flex justify-center items-center border border-border hover:bg-secondary text-secondaryforeground hover:bg-secondary/40 h-9 px-4 py-2 rounded-md font-medium">
+                Limpar
+            </button>
+        </div>
+
+        <div id="resultado" class="text-center">
+            
+        </div>
+    </div>
+
+    <script>
+        function verificarAnoBissexto() {
+            const ano = parseInt(document.getElementById('ano').value);
+            const resultadoDiv = document.getElementById('resultado');
+            
+            // Validação: verifica se o ano está dentro de um range realista (1-9999)
+            // Evita anos negativos ou muito distantes no futuro
+            if (!ano || ano < 1 || ano > 9999) {
+                resultadoDiv.innerHTML = '<span class="text-red-500">Por favor, digite um ano válido entre 1 e 9999!</span>';
+                return;
+            }
+            
+            // Algoritmo para determinar se o ano é bissexto:
+            // 1. Se o ano é divisível por 400 → É bissexto
+            // 2. Se o ano é divisível por 100 mas NÃO por 400 → NÃO é bissexto
+            // 3. Se o ano é divisível por 4 mas NÃO por 100 → É bissexto
+            // 4. Caso contrário → NÃO é bissexto
+            const isBissexto = (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+            let explicacao = '';
+            
+            // Gera explicação detalhada baseada na regra aplicada
+            if (ano % 400 === 0) {
+                explicacao = `${ano} é divisível por 400, então é bissexto.`;
+            } else if (ano % 100 === 0) {
+                explicacao = `${ano} é divisível por 100 mas não por 400, então NÃO é bissexto.`;
+            } else if (ano % 4 === 0) {
+                explicacao = `${ano} é divisível por 4 e não é divisível por 100, então é bissexto.`;
+            } else {
+                explicacao = `${ano} não é divisível por 4, então NÃO é bissexto.`;
+            }
+            
+            // Exibe resultado para ano bissexto (verde)
+            if (isBissexto) {
+                resultadoDiv.innerHTML = `
+                    <div class="bg-green-500/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-green-500 mb-4">🎉 ${ano} É BISSEXTO!</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-card rounded">
+                                <span class="text-foreground">Ano:</span>
+                                <span class="text-primary font-bold">${ano}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-card rounded">
+                                <span class="text-foreground">Fevereiro tem:</span>
+                                <span class="text-green-500 font-bold">29 dias</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-card rounded">
+                                <span class="text-foreground">Total de dias:</span>
+                                <span class="text-green-500 font-bold">366 dias</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-mutedforeground mt-4">${explicacao}</p>
+                    </div>
+                `;
+            } else {
+                // Exibe resultado para ano não bissexto (vermelho)
+                resultadoDiv.innerHTML = `
+                    <div class="bg-red-500/20 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold text-red-500 mb-4">❌ ${ano} NÃO É BISSEXTO</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-card rounded">
+                                <span class="text-foreground">Ano:</span>
+                                <span class="text-primary font-bold">${ano}</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-card rounded">
+                                <span class="text-foreground">Fevereiro tem:</span>
+                                <span class="text-red-500 font-bold">28 dias</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-card rounded">
+                                <span class="text-foreground">Total de dias:</span>
+                                <span class="text-red-500 font-bold">365 dias</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-mutedforeground mt-4">${explicacao}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function limparResultado() {
+            document.getElementById('resultado').innerHTML = ''; // Limpa o resultado
+            document.getElementById('ano').value = ''; // Limpa o campo ano
+            document.getElementById('ano').focus(); // Foca no campo para nova entrada
+        }
+        
+        // Event listener para permitir pressionar Enter e verificar o ano
+        document.getElementById('ano').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verificarAnoBissexto();
+            }
+        });
+    </script>
+</body>
+</html> 
